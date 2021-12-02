@@ -1,8 +1,14 @@
 import { injectable } from "@joist/di";
 import { styled, css } from "@joist/styled";
-import { render, html } from "lit-html";
 
 import { TodoService, Todo, TodoStatus } from "./todo.service";
+
+const template = document.createElement("template");
+template.innerHTML = /*html*/ `
+  <form>
+    <input name="todo" placeholder="What needs to be done?" autocomplete="off" autofocus />
+  </form>
+`;
 
 @injectable
 @styled
@@ -56,55 +62,36 @@ export class TodoForm extends HTMLElement {
     `,
   ];
 
-  value = "";
+  private root: ShadowRoot;
+  private input: HTMLInputElement | null = null;
 
   constructor(private todo: TodoService) {
     super();
 
-    this.attachShadow({ mode: "open" });
+    this.root = this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
-    this.render();
+    this.root.appendChild(template.content.cloneNode(true));
+
+    this.input = this.root.querySelector("input");
+
+    this.root.addEventListener("submit", (e) => {
+      this.onSubmit(e);
+    });
   }
 
   private onSubmit(e: Event) {
     e.preventDefault();
     e.stopPropagation();
 
-    const el = e.target as HTMLFormElement;
-    const form = new FormData(el);
-    const todo = form.get("todo") as string;
-
-    this.value = todo;
-
-    this.render();
+    const todo = this.input!.value;
 
     if (todo.length) {
       this.todo.addTodo(new Todo(todo, TodoStatus.Active));
 
-      this.value = "";
-
-      this.render();
+      this.input!.value = "";
     }
-  }
-
-  private template() {
-    return html`
-      <form @submit=${this.onSubmit.bind(this)}>
-        <input
-          .value=${this.value}
-          name="todo"
-          placeholder="What needs to be done?"
-          autocomplete="off"
-          autofocus
-        />
-      </form>
-    `;
-  }
-
-  private render() {
-    render(this.template(), this.shadowRoot!);
   }
 }
 
