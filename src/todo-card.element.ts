@@ -53,10 +53,12 @@ export class TodoCard extends HTMLElement implements OnChange {
   }
 
   connectedCallback() {
+    console.log(this.todo);
     this.render();
   }
 
   onChange() {
+    console.log(this.todo);
     this.render();
   }
 
@@ -73,14 +75,14 @@ export class TodoCard extends HTMLElement implements OnChange {
 
       <button
         class="remove"
-        @click="${() => this.dispatchEvent(new Event("remove_todo"))}"
+        @click="${() => this.dispatchEvent(new Event("remove"))}"
       >
         remove
       </button>
 
       <button
         class="complete"
-        @click="${() => this.dispatchEvent(new Event("complete_todo"))}"
+        @click="${() => this.dispatchEvent(new Event("complete"))}"
       >
         ${this.service.getStatusText(this.todo)}
       </button>

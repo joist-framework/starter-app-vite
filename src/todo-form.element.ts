@@ -1,14 +1,12 @@
-import { injectable } from '@joist/di';
-import { observable, observe, OnChange } from '@joist/observable';
-import { styled, css } from '@joist/styled';
-import { render, html } from 'lit-html';
+import { injectable } from "@joist/di";
+import { styled, css } from "@joist/styled";
+import { render, html } from "lit-html";
 
-import { TodoService, Todo, TodoStatus } from './todo.service';
+import { TodoService, Todo, TodoStatus } from "./todo.service";
 
 @injectable
-@observable
 @styled
-export class TodoForm extends HTMLElement implements OnChange {
+export class TodoForm extends HTMLElement {
   static deps = [TodoService];
 
   static styles = [
@@ -58,19 +56,15 @@ export class TodoForm extends HTMLElement implements OnChange {
     `,
   ];
 
-  @observe value: string = '';
+  value = "";
 
   constructor(private todo: TodoService) {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
-    this.render();
-  }
-
-  onChange() {
     this.render();
   }
 
@@ -80,13 +74,18 @@ export class TodoForm extends HTMLElement implements OnChange {
 
     const el = e.target as HTMLFormElement;
     const form = new FormData(el);
-    const todo = form.get('todo') as string;
+    const todo = form.get("todo") as string;
 
     this.value = todo;
 
+    this.render();
+
     if (todo.length) {
       this.todo.addTodo(new Todo(todo, TodoStatus.Active));
-      this.value = '';
+
+      this.value = "";
+
+      this.render();
     }
   }
 
@@ -109,4 +108,4 @@ export class TodoForm extends HTMLElement implements OnChange {
   }
 }
 
-customElements.define('todo-form', TodoForm);
+customElements.define("todo-form", TodoForm);

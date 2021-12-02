@@ -42,11 +42,11 @@ export class TodoList extends HTMLElement implements OnChange {
           0 17px 2px -6px rgba(0, 0, 0, 0.2);
       }
 
-      todo-item {
+      todo-card {
         border-bottom: solid 1px #f3f3f3;
       }
 
-      todo-item:last-child {
+      todo-card:last-child {
         border-bottom: none;
       }
     `,
@@ -84,8 +84,8 @@ export class TodoList extends HTMLElement implements OnChange {
           return html`
             <todo-card
               .todo=${todo}
-              @remove_todo=${() => this.todo.removeTodo(i)}
-              @complete_todo=${() => this.completeTodo(i)}
+              @remove=${() => this.todo.removeTodo(i)}
+              @complete=${() => this.completeTodo(i)}
             ></todo-card>
           `;
         })}
