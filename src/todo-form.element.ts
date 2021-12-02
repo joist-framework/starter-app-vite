@@ -92,7 +92,7 @@ export class TodoForm extends HTMLElement implements OnChange {
 
   private template() {
     return html`
-      <form @submit=${this.onSubmit}>
+      <form @submit=${this.onSubmit.bind(this)}>
         <input
           .value=${this.value}
           name="todo"
