@@ -24,7 +24,8 @@
     "@joist/observable": "2.0.0-alpha.0",
     "@joist/styled": "2.0.0-alpha.0",
     "classnames": "2.3.1",
-    "lit-html": "2.0.2"
+    "lit-html": "2.0.2",
+    "tslib": "^2.3.1"
   },
   "devDependencies": {
     "typescript": "^4.5.2",
