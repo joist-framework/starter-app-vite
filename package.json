@@ -1,0 +1,28 @@
+{
+  "name": "joist-vite",
+  "version": "2.0.0",
+  "sideEffects": false,
+  "private": true,
+  "description": "Vite + Joist",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joist-framework/starter-app-vite.git"
+  },
+  "keywords": [],
+  "author": "deebloo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joist-framework/starter-app-vite/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@joist/di": "^2.0.0-alpha.0",
+    "@joist/observable": "^2.0.0-alpha.0",
+    "@joist/styled": "^2.0.0-alpha.0",
+    "lit-html": "^2.0.2"
+  }
+}
