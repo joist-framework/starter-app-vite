@@ -24,5 +24,9 @@
     "@joist/observable": "^2.0.0-alpha.0",
     "@joist/styled": "^2.0.0-alpha.0",
     "lit-html": "^2.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.2",
+    "vite": "^2.6.14"
   }
 }
