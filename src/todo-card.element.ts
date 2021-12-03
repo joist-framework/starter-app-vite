@@ -1,17 +1,13 @@
-import { injectable } from "@joist/di";
 import { styled, css } from "@joist/styled";
 import { observable, observe, OnChange } from "@joist/observable";
 import { render, html } from "lit-html";
 import classNames from "classnames";
 
-import { Todo, TodoStatus, TodoService } from "./todo.service";
+import { Todo, TodoStatus } from "./todo.service";
 
 @styled
-@injectable
 @observable
 export class TodoCard extends HTMLElement implements OnChange {
-  static deps = [TodoService];
-
   static styles = [
     css`
       :host {
@@ -46,7 +42,7 @@ export class TodoCard extends HTMLElement implements OnChange {
 
   @observe todo?: Todo;
 
-  constructor(private service: TodoService) {
+  constructor() {
     super();
 
     this.attachShadow({ mode: "open" });
@@ -84,7 +80,7 @@ export class TodoCard extends HTMLElement implements OnChange {
         class="complete"
         @click="${() => this.dispatchEvent(new Event("complete"))}"
       >
-        ${this.service.getStatusText(this.todo)}
+        ${status === TodoStatus.Active ? "complete" : "active"}
       </button>
     `;
   }

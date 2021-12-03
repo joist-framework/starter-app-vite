@@ -62,13 +62,11 @@ export class TodoForm extends HTMLElement {
     `,
   ];
 
-  private root: ShadowRoot;
+  private root = this.attachShadow({ mode: "open" });
   private input: HTMLInputElement | null = null;
 
   constructor(private todo: TodoService) {
     super();
-
-    this.root = this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
@@ -83,7 +81,6 @@ export class TodoForm extends HTMLElement {
 
   private onSubmit(e: Event) {
     e.preventDefault();
-    e.stopPropagation();
 
     const todo = this.input!.value;
 

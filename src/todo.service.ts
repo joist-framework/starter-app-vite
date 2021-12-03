@@ -1,7 +1,7 @@
-import { service, injectable } from '@joist/di';
-import { observable, observe, OnChange } from '@joist/observable';
+import { service, injectable } from "@joist/di";
+import { observable, observe, OnChange } from "@joist/observable";
 
-import { AppStorage } from './storage.service';
+import { AppStorage } from "./storage.service";
 
 export const enum TodoStatus {
   Active,
@@ -9,12 +9,15 @@ export const enum TodoStatus {
 }
 
 export class Todo {
-  constructor(public readonly name: string, public readonly status: TodoStatus) {}
+  constructor(
+    public readonly name: string,
+    public readonly status: TodoStatus
+  ) {}
 }
 
 export class TodoChangeEvent extends Event {
   constructor() {
-    super('todochange');
+    super("todochange");
   }
 }
 
@@ -29,19 +32,15 @@ export class TodoService extends EventTarget implements OnChange {
   constructor(private store: AppStorage) {
     super();
 
-    const stored = this.store.loadJSON<Todo[]>('joist_todo');
+    const stored = this.store.loadJSON<Todo[]>("joist_todo");
 
     if (stored) {
       this.todos = stored;
     }
 
-    this.addEventListener('todochange', () => {
-      this.store.saveJSON('joist_todo', this.todos);
+    this.addEventListener("todochange", () => {
+      this.store.saveJSON("joist_todo", this.todos);
     });
-  }
-
-  getStatusText({ status }: Todo) {
-    return status === TodoStatus.Active ? 'complete' : 'active';
   }
 
   addTodo(todo: Todo) {
