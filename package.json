@@ -24,7 +24,7 @@
     "@joist/observable": "2.0.0-beta.2",
     "@joist/styled": "2.0.0-beta.2",
     "classnames": "2.3.1",
-    "lit-html": "2.0.2"
+    "lit-html": "2.2.0"
   },
   "devDependencies": {
     "typescript": "4.5.5",
