@@ -20,14 +20,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@joist/di": "2.0.0-alpha.0",
-    "@joist/observable": "2.0.0-alpha.0",
-    "@joist/styled": "2.0.0-alpha.0",
+    "@joist/di": "^2.0.0-alpha.16",
+    "@joist/observable": "^2.0.0-alpha.16",
+    "@joist/query": "^2.0.0-alpha.16",
+    "@joist/styled": "^2.0.0-alpha.16",
     "classnames": "2.3.1",
-    "lit-html": "2.0.2"
+    "clsx": "^1.1.1",
+    "lit-html": "^2.2.2"
   },
   "devDependencies": {
-    "typescript": "4.5.2",
-    "vite": "2.6.14"
+    "typescript": "^4.6.3",
+    "vite": "^2.9.1"
   }
 }
