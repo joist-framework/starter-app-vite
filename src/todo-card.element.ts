@@ -1,13 +1,23 @@
-import { styled, css } from "@joist/styled";
-import { observable, observe, OnChange } from "@joist/observable";
-import { render, html } from "lit-html";
-import classNames from "classnames";
+import { styled, css } from '@joist/styled';
+import { attr, observable, observe, OnPropertyChanged } from '@joist/observable';
+import { query } from '@joist/query';
 
-import { Todo, TodoStatus } from "./todo.service";
+import { TodoStatus } from './services/todo.service';
+
+const template = document.createElement('template');
+template.innerHTML = /*html*/ `
+  <div id="name">
+    <slot></slot>
+  </div>
+  
+  <button id="remove">remove</button>
+  
+  <button id="complete">complete</button>
+`;
 
 @styled
 @observable
-export class TodoCard extends HTMLElement implements OnChange {
+export class TodoCard extends HTMLElement implements OnPropertyChanged {
   static styles = [
     css`
       :host {
@@ -16,11 +26,11 @@ export class TodoCard extends HTMLElement implements OnChange {
         padding: 1rem;
       }
 
-      .name {
+      #name {
         flex-grow: 1;
       }
 
-      .name.complete {
+      :host([status='complete']) #name {
         text-decoration: line-through;
         opacity: 0.5;
       }
@@ -34,60 +44,33 @@ export class TodoCard extends HTMLElement implements OnChange {
         margin-left: 0.5rem;
       }
 
-      button.remove {
+      button#remove {
         color: darkred;
       }
     `,
   ];
 
-  @observe todo?: Todo;
+  @observe @attr status: TodoStatus = TodoStatus.Active;
 
-  constructor() {
-    super();
-
-    this.attachShadow({ mode: "open" });
-  }
+  @query('#complete') completeBtn!: HTMLButtonElement;
 
   connectedCallback() {
-    console.log(this.todo);
-    this.render();
+    const root = this.attachShadow({ mode: 'open' });
+
+    root.appendChild(template.content.cloneNode(true));
+
+    root.addEventListener('click', (e) => {
+      if (e.target instanceof HTMLButtonElement) {
+        this.dispatchEvent(new Event(e.target.id));
+      }
+    });
   }
 
-  onChange() {
-    console.log(this.todo);
-    this.render();
-  }
+  onPropertyChanged() {
+    const isActive = this.status === TodoStatus.Active;
 
-  private template() {
-    if (!this.todo) {
-      return html``;
-    }
-
-    const { status } = this.todo;
-    const complete = status === TodoStatus.Completed;
-
-    return html`
-      <div class="${classNames("name", { complete })}">${this.todo.name}</div>
-
-      <button
-        class="remove"
-        @click="${() => this.dispatchEvent(new Event("remove"))}"
-      >
-        remove
-      </button>
-
-      <button
-        class="complete"
-        @click="${() => this.dispatchEvent(new Event("complete"))}"
-      >
-        ${status === TodoStatus.Active ? "complete" : "active"}
-      </button>
-    `;
-  }
-
-  private render() {
-    render(this.template(), this.shadowRoot!);
+    this.completeBtn.innerHTML = isActive ? 'complete' : 'active';
   }
 }
 
-customElements.define("todo-card", TodoCard);
+customElements.define('todo-card', TodoCard);

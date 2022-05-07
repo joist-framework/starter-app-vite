@@ -1,19 +1,28 @@
-import { injectable } from "@joist/di";
+import { Injected, injectable } from "@joist/di";
 import { styled, css } from "@joist/styled";
+import {
+  attr,
+  Changes,
+  observable,
+  observe,
+  OnPropertyChanged,
+} from "@joist/observable";
+import { query } from "@joist/query";
 
-import { TodoService, Todo, TodoStatus } from "./todo.service";
+import { TodoService, Todo, TodoStatus } from "./services/todo.service";
 
 const template = document.createElement("template");
 template.innerHTML = /*html*/ `
   <form>
-    <input name="todo" placeholder="What needs to be done?" autocomplete="off" autofocus />
+    <input id="input" name="todo" placeholder="What needs to be done?" autocomplete="off" autofocus />
   </form>
 `;
 
 @injectable
 @styled
-export class TodoForm extends HTMLElement {
-  static deps = [TodoService];
+@observable
+export class TodoForm extends HTMLElement implements OnPropertyChanged {
+  static inject = [TodoService];
 
   static styles = [
     css`
@@ -62,32 +71,43 @@ export class TodoForm extends HTMLElement {
     `,
   ];
 
-  private root = this.attachShadow({ mode: "open" });
-  private input: HTMLInputElement | null = null;
+  @observe @attr value = "";
 
-  constructor(private todo: TodoService) {
+  @query("#input") input!: HTMLInputElement;
+
+  constructor(private todo: Injected<TodoService>) {
     super();
   }
 
   connectedCallback() {
-    this.root.appendChild(template.content.cloneNode(true));
+    const root = this.attachShadow({ mode: "open" });
 
-    this.input = this.root.querySelector("input");
+    root.appendChild(template.content.cloneNode(true));
 
-    this.root.addEventListener("submit", (e) => {
+    this.input.addEventListener("input", () => {
+      this.value = this.input.value;
+    });
+
+    root.addEventListener("submit", (e) => {
       this.onSubmit(e);
     });
+  }
+
+  onPropertyChanged(changes: Changes): void {
+    console.log(changes);
+
+    this.input.value = this.value;
   }
 
   private onSubmit(e: Event) {
     e.preventDefault();
 
-    const todo = this.input!.value;
+    const todo = this.input.value;
 
     if (todo.length) {
-      this.todo.addTodo(new Todo(todo, TodoStatus.Active));
+      this.todo().addTodo(new Todo(todo, TodoStatus.Active));
 
-      this.input!.value = "";
+      this.input.value = "";
     }
   }
 }

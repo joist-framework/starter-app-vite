@@ -1,15 +1,15 @@
-import { injectable } from "@joist/di";
-import { observable, observe, OnChange } from "@joist/observable";
+import { Injected, injectable } from "@joist/di";
+import { observable, observe, OnPropertyChanged } from "@joist/observable";
 import { styled, css } from "@joist/styled";
 import { render, html } from "lit-html";
 
-import { TodoService, Todo, TodoStatus } from "./todo.service";
+import { TodoService, Todo, TodoStatus } from "./services/todo.service";
 
 @injectable
 @observable
 @styled
-export class TodoList extends HTMLElement implements OnChange {
-  static deps = [TodoService];
+export class TodoList extends HTMLElement implements OnPropertyChanged {
+  static inject = [TodoService];
 
   static styles = [
     css`
@@ -52,41 +52,47 @@ export class TodoList extends HTMLElement implements OnChange {
     `,
   ];
 
-  @observe private todos: Todo[] = [];
-  @observe private totalActive = 0;
+  @observe todos: Todo[] = [];
+  @observe totalActive = 0;
 
-  constructor(private todo: TodoService) {
+  constructor(private todo: Injected<TodoService>) {
     super();
-
-    this.todos = this.todo.todos;
-    this.totalActive = this.getActiveTodoCount();
-
-    this.todo.addEventListener("todochange", () => {
-      this.todos = this.todo.todos;
-      this.totalActive = this.getActiveTodoCount();
-    });
 
     this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
+    const service = this.todo();
+
+    this.todos = service.todos;
+    this.totalActive = this.getActiveTodoCount();
+
+    service.addEventListener("todochange", () => {
+      this.todos = service.todos;
+      this.totalActive = this.getActiveTodoCount();
+    });
+
     this.render();
   }
 
-  onChange() {
+  onPropertyChanged() {
     this.render();
   }
 
   private template() {
+    const service = this.todo();
+
     return html`
       <div class="todo-list">
         ${this.todos.map((todo, i) => {
           return html`
             <todo-card
-              .todo=${todo}
-              @remove=${() => this.todo.removeTodo(i)}
+              .status=${todo.status}
+              @remove=${() => service.removeTodo(i)}
               @complete=${() => this.completeTodo(i)}
-            ></todo-card>
+            >
+              ${todo.name}
+            </todo-card>
           `;
         })}
       </div>
@@ -102,18 +108,20 @@ export class TodoList extends HTMLElement implements OnChange {
   }
 
   private getActiveTodoCount(): number {
-    return this.todo.todos
-      .filter((todo) => todo.status === TodoStatus.Active)
+    return this.todo()
+      .todos.filter((todo) => todo.status === TodoStatus.Active)
       .reduce<number>((total) => total + 1, 0);
   }
 
   private completeTodo(i: number) {
-    const todo = this.todo.todos[i];
+    const service = this.todo();
 
-    return this.todo.updateTodo(i, {
+    const todo = service.todos[i];
+
+    return service.updateTodo(i, {
       status:
         todo.status === TodoStatus.Active
-          ? TodoStatus.Completed
+          ? TodoStatus.Complete
           : TodoStatus.Active,
     });
   }
