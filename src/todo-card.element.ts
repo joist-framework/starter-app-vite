@@ -77,9 +77,15 @@ export class TodoCard
         this.dispatchEvent(new Event(e.target.id));
       }
     });
+
+    this.updateActiveBtn();
   }
 
   onPropertyChanged() {
+    this.updateActiveBtn();
+  }
+
+  updateActiveBtn() {
     const isActive = this.status === TodoStatus.Active;
 
     this.completeBtn.innerHTML = isActive ? "complete" : "active";
