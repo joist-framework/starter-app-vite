@@ -1,17 +1,17 @@
-import { Injected, injectable } from "@joist/di";
-import { styled, css } from "@joist/styled";
+import { Injected, injectable } from '@joist/di';
+import { styled, css } from '@joist/styled';
 import {
   attr,
   Changes,
   observable,
   observe,
   OnPropertyChanged,
-} from "@joist/observable";
-import { query } from "@joist/query";
+} from '@joist/observable';
+import { query } from '@joist/query';
 
-import { TodoService, Todo, TodoStatus } from "./services/todo.service";
+import { TodoService, Todo, TodoStatus } from './services/todo.service';
 
-const template = document.createElement("template");
+const template = document.createElement('template');
 template.innerHTML = /*html*/ `
   <form>
     <input id="input" name="todo" placeholder="What needs to be done?" autocomplete="off" autofocus />
@@ -71,24 +71,24 @@ export class TodoForm extends HTMLElement implements OnPropertyChanged {
     `,
   ];
 
-  @observe @attr value = "";
+  @observe @attr value = '';
 
-  @query("#input") input!: HTMLInputElement;
+  @query('#input') input!: HTMLInputElement;
 
   constructor(private todo: Injected<TodoService>) {
     super();
+
+    this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
-    const root = this.attachShadow({ mode: "open" });
+    this.shadowRoot!.appendChild(template.content.cloneNode(true));
 
-    root.appendChild(template.content.cloneNode(true));
-
-    this.input.addEventListener("input", () => {
+    this.input.addEventListener('input', () => {
       this.value = this.input.value;
     });
 
-    root.addEventListener("submit", (e) => {
+    this.shadowRoot!.addEventListener('submit', (e) => {
       this.onSubmit(e);
     });
   }
@@ -107,9 +107,9 @@ export class TodoForm extends HTMLElement implements OnPropertyChanged {
     if (todo.length) {
       this.todo().addTodo(new Todo(todo, TodoStatus.Active));
 
-      this.input.value = "";
+      this.input.value = '';
     }
   }
 }
 
-customElements.define("todo-form", TodoForm);
+customElements.define('todo-form', TodoForm);

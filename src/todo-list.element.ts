@@ -1,8 +1,8 @@
-import { Injected, injectable } from "@joist/di";
-import { styled, css } from "@joist/styled";
-import { render, html } from "lit-html";
+import { Injected, injectable } from '@joist/di';
+import { styled, css } from '@joist/styled';
+import { render, html } from 'lit-html';
 
-import { TodoService, TodoStatus } from "./services/todo.service";
+import { TodoService, TodoStatus } from './services/todo.service';
 
 @injectable
 @styled
@@ -53,7 +53,7 @@ export class TodoList extends HTMLElement {
   constructor(private todo: Injected<TodoService>) {
     super();
 
-    this.attachShadow({ mode: "open" });
+    this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
@@ -61,7 +61,7 @@ export class TodoList extends HTMLElement {
 
     this.render();
 
-    service.addEventListener("todochange", () => {
+    service.addEventListener('todochange', () => {
       this.render();
     });
   }
@@ -85,7 +85,7 @@ export class TodoList extends HTMLElement {
       </div>
 
       <div class="todo-list-footer">
-        ${this.getActiveTodoCount()} item${service.todos.length > 1 ? "s" : ""}
+        ${this.getActiveTodoCount()} item${service.todos.length > 1 ? 's' : ''}
         left
       </div>
     `;
@@ -115,4 +115,4 @@ export class TodoList extends HTMLElement {
   }
 }
 
-customElements.define("todo-list", TodoList);
+customElements.define('todo-list', TodoList);
