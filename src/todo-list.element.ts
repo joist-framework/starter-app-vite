@@ -1,14 +1,12 @@
 import { Injected, injectable } from "@joist/di";
-import { observable, observe, OnPropertyChanged } from "@joist/observable";
 import { styled, css } from "@joist/styled";
 import { render, html } from "lit-html";
 
-import { TodoService, Todo, TodoStatus } from "./services/todo.service";
+import { TodoService, TodoStatus } from "./services/todo.service";
 
 @injectable
-@observable
 @styled
-export class TodoList extends HTMLElement implements OnPropertyChanged {
+export class TodoList extends HTMLElement {
   static inject = [TodoService];
 
   static styles = [
@@ -52,9 +50,6 @@ export class TodoList extends HTMLElement implements OnPropertyChanged {
     `,
   ];
 
-  @observe todos: Todo[] = [];
-  @observe totalActive = 0;
-
   constructor(private todo: Injected<TodoService>) {
     super();
 
@@ -64,19 +59,11 @@ export class TodoList extends HTMLElement implements OnPropertyChanged {
   connectedCallback() {
     const service = this.todo();
 
-    this.todos = service.todos;
-    this.totalActive = this.getActiveTodoCount();
+    this.render();
 
     service.addEventListener("todochange", () => {
-      this.todos = service.todos;
-      this.totalActive = this.getActiveTodoCount();
+      this.render();
     });
-
-    this.render();
-  }
-
-  onPropertyChanged() {
-    this.render();
   }
 
   private template() {
@@ -84,7 +71,7 @@ export class TodoList extends HTMLElement implements OnPropertyChanged {
 
     return html`
       <div class="todo-list">
-        ${this.todos.map((todo, i) => {
+        ${service.todos.map((todo, i) => {
           return html`
             <todo-card
               .status=${todo.status}
@@ -98,7 +85,8 @@ export class TodoList extends HTMLElement implements OnPropertyChanged {
       </div>
 
       <div class="todo-list-footer">
-        ${this.totalActive} item${this.todos.length > 1 ? "s" : ""} left
+        ${this.getActiveTodoCount()} item${service.todos.length > 1 ? "s" : ""}
+        left
       </div>
     `;
   }

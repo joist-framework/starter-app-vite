@@ -46,13 +46,17 @@
     </header>
 
     <main>
-      <todo-form></todo-form>
+      <local-storage-ctx>
+        <todo-form></todo-form>
 
-      <todo-list></todo-list>
+        <todo-list></todo-list>
+      </local-storage-ctx>
     </main>
 
-    <script src="./src/todo-form.element.ts" type="module"></script>
-    <script src="./src/todo-list.element.ts" type="module"></script>
-    <script src="./src/todo-card.element.ts" type="module"></script>
+    <script src="./src/storage.ctx.ts" type="module"></script>
+
+    <script src="./src/todo-form.element.ts" type="module" async></script>
+    <script src="./src/todo-list.element.ts" type="module" async></script>
+    <script src="./src/todo-card.element.ts" type="module" async></script>
   </body>
 </html>

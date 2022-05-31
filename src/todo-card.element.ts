@@ -1,10 +1,15 @@
-import { styled, css } from '@joist/styled';
-import { attr, observable, observe, OnPropertyChanged } from '@joist/observable';
-import { query } from '@joist/query';
+import { styled, css } from "@joist/styled";
+import {
+  attr,
+  observable,
+  observe,
+  OnPropertyChanged,
+} from "@joist/observable";
+import { query } from "@joist/query";
 
-import { TodoStatus } from './services/todo.service';
+import { TodoStatus } from "./services/todo.service";
 
-const template = document.createElement('template');
+const template = document.createElement("template");
 template.innerHTML = /*html*/ `
   <div id="name">
     <slot></slot>
@@ -30,7 +35,7 @@ export class TodoCard extends HTMLElement implements OnPropertyChanged {
         flex-grow: 1;
       }
 
-      :host([status='complete']) #name {
+      :host([status="complete"]) #name {
         text-decoration: line-through;
         opacity: 0.5;
       }
@@ -52,14 +57,18 @@ export class TodoCard extends HTMLElement implements OnPropertyChanged {
 
   @observe @attr status: TodoStatus = TodoStatus.Active;
 
-  @query('#complete') completeBtn!: HTMLButtonElement;
+  @query("#complete") completeBtn!: HTMLButtonElement;
+
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+  }
 
   connectedCallback() {
-    const root = this.attachShadow({ mode: 'open' });
+    this.shadowRoot!.appendChild(template.content.cloneNode(true));
 
-    root.appendChild(template.content.cloneNode(true));
-
-    root.addEventListener('click', (e) => {
+    this.shadowRoot!.addEventListener("click", (e) => {
       if (e.target instanceof HTMLButtonElement) {
         this.dispatchEvent(new Event(e.target.id));
       }
@@ -69,8 +78,8 @@ export class TodoCard extends HTMLElement implements OnPropertyChanged {
   onPropertyChanged() {
     const isActive = this.status === TodoStatus.Active;
 
-    this.completeBtn.innerHTML = isActive ? 'complete' : 'active';
+    this.completeBtn.innerHTML = isActive ? "complete" : "active";
   }
 }
 
-customElements.define('todo-card', TodoCard);
+customElements.define("todo-card", TodoCard);
