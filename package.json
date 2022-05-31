@@ -20,10 +20,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@joist/di": "2.0.0-beta.13",
-    "@joist/observable": "2.0.0-beta.13",
-    "@joist/query": "2.0.0-beta.13",
-    "@joist/styled": "2.0.0-beta.13",
+    "@joist/di": "2.0.0-y.0",
+    "@joist/observable": "2.0.0-y.0",
+    "@joist/query": "2.0.0-y.0",
+    "@joist/styled": "2.0.0-y.0",
     "clsx": "^1.1.1",
     "lit-html": "^2.2.2"
   },
