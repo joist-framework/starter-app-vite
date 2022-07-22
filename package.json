@@ -25,7 +25,7 @@
     "@joist/query": "2.0.0-beta.13",
     "@joist/styled": "2.0.0-beta.13",
     "clsx": "1.1.1",
-    "lit-html": "2.2.5"
+    "lit-html": "2.2.7"
   },
   "devDependencies": {
     "rollup-plugin-minify-html-literals": "1.2.6",
