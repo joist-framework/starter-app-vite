@@ -24,7 +24,7 @@
     "@joist/observable": "2.0.0",
     "@joist/query": "2.0.0",
     "@joist/styled": "2.0.0",
-    "clsx": "^1.1.1"
+    "clsx": "1.2.1"
   },
   "devDependencies": {
     "rollup-plugin-minify-html-literals": "^1.2.6",
