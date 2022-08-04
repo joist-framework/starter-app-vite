@@ -1,12 +1,20 @@
 import { Injected, injectable } from '@joist/di';
+import { observable } from '@joist/observable';
 import { styled, css } from '@joist/styled';
-import { render, html } from 'lit-html';
 
-import { TodoService, TodoStatus } from './services/todo.service';
+import {
+  TodoAddedEvent,
+  TodoUpdatedEvent,
+  TodoRemovedEvent,
+  TodoService,
+  TodoStatus,
+} from './services/todo.service';
+import { TodoCardElement } from './todo-card.element';
 
 @injectable
+@observable
 @styled
-export class TodoList extends HTMLElement {
+export class TodoListElement extends HTMLElement {
   static inject = [TodoService];
 
   static styles = [
@@ -17,102 +25,87 @@ export class TodoList extends HTMLElement {
         position: relative;
       }
 
-      .todo-list-footer {
-        color: #777;
-        padding: 10px 15px;
-        height: 20px;
-        text-align: center;
-        border-top: 1px solid #e6e6e6;
-        font-size: 14px;
-        text-align: left;
-      }
-
-      .todo-list-footer:before {
-        content: "";
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        height: 50px;
-        overflow: hidden;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6,
-          0 9px 1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6,
-          0 17px 2px -6px rgba(0, 0, 0, 0.2);
-      }
-
-      todo-card {
+      ::slotted(todo-card) {
         border-bottom: solid 1px #f3f3f3;
       }
 
-      todo-card:last-child {
+      ::slotted(todo-card:last-child) {
         border-bottom: none;
       }
     `,
   ];
 
-  constructor(private todo: Injected<TodoService>) {
+  #listeners: Function[] = [];
+
+  constructor(private getTodoService: Injected<TodoService>) {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = '<slot></slot>';
+
+    this.addEventListener('remove', this.#onRemove.bind(this));
+    this.addEventListener('complete', this.#onComplete.bind(this));
   }
 
-  connectedCallback() {
-    const service = this.todo();
+  async connectedCallback() {
+    const service = this.getTodoService();
+    const todos = await service.getTodos();
 
-    this.render();
-
-    service.addEventListener('todochange', () => {
-      this.render();
+    todos.forEach((todo) => {
+      if (!this.querySelector('#' + todo.id)) {
+        this.appendChild(TodoCardElement.create(todo));
+      }
     });
+
+    this.#listeners = [
+      service.listen('todo_added', this.#onTodoAdded.bind(this)),
+      service.listen('todo_removed', this.#onTodoRemoved.bind(this)),
+      service.listen('todo_updated', this.#onTodoChanged.bind(this)),
+    ];
   }
 
-  private template() {
-    const service = this.todo();
-
-    return html`
-      <div class="todo-list">
-        ${service.todos.map((todo, i) => {
-          return html`
-            <todo-card
-              .status=${todo.status}
-              @remove=${() => service.removeTodo(i)}
-              @complete=${() => this.completeTodo(i)}
-            >
-              ${todo.name}
-            </todo-card>
-          `;
-        })}
-      </div>
-
-      <div class="todo-list-footer">
-        ${this.getActiveTodoCount()} item${service.todos.length > 1 ? 's' : ''}
-        left
-      </div>
-    `;
+  disconnectedCallback() {
+    this.#listeners.forEach((remove) => remove());
   }
 
-  private render() {
-    render(this.template(), this.shadowRoot!);
+  #onRemove(e: Event) {
+    if (e.target instanceof TodoCardElement) {
+      this.getTodoService().removeTodo(e.target.id);
+    }
   }
 
-  private getActiveTodoCount(): number {
-    return this.todo()
-      .todos.filter((todo) => todo.status === TodoStatus.Active)
-      .reduce<number>((total) => total + 1, 0);
+  #onComplete(e: Event) {
+    if (e.target instanceof TodoCardElement) {
+      this.getTodoService().updateTodo(e.target.id, {
+        status: e.target.status === TodoStatus.Active ? TodoStatus.Complete : TodoStatus.Active,
+      });
+    }
   }
 
-  private completeTodo(i: number) {
-    const service = this.todo();
+  #onTodoAdded(e: Event) {
+    if (e instanceof TodoAddedEvent) {
+      this.appendChild(TodoCardElement.create(e.todo));
+    }
+  }
 
-    const todo = service.todos[i];
+  #onTodoRemoved(e: Event) {
+    if (e instanceof TodoRemovedEvent) {
+      const el = this.querySelector('#' + e.todo);
 
-    return service.updateTodo(i, {
-      status:
-        todo.status === TodoStatus.Active
-          ? TodoStatus.Complete
-          : TodoStatus.Active,
-    });
+      if (el instanceof TodoCardElement) {
+        this.removeChild(el);
+      }
+    }
+  }
+
+  #onTodoChanged(e: Event) {
+    if (e instanceof TodoUpdatedEvent) {
+      const el = this.querySelector('#' + e.todo.id);
+
+      if (el instanceof TodoCardElement) {
+        el.status = e.todo.status;
+        el.innerHTML = e.todo.name;
+      }
+    }
   }
 }
-
-customElements.define('todo-list', TodoList);

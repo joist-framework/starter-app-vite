@@ -1,12 +1,6 @@
 import { Injected, injectable } from '@joist/di';
 import { styled, css } from '@joist/styled';
-import {
-  attr,
-  Changes,
-  observable,
-  observe,
-  OnPropertyChanged,
-} from '@joist/observable';
+import { UpgradableElement } from '@joist/observable';
 import { query } from '@joist/query';
 
 import { TodoService, Todo, TodoStatus } from './services/todo.service';
@@ -20,8 +14,7 @@ template.innerHTML = /*html*/ `
 
 @injectable
 @styled
-@observable
-export class TodoForm extends HTMLElement implements OnPropertyChanged {
+export class TodoFormElement extends UpgradableElement {
   static inject = [TodoService];
 
   static styles = [
@@ -71,45 +64,27 @@ export class TodoForm extends HTMLElement implements OnPropertyChanged {
     `,
   ];
 
-  @observe @attr value = '';
-
   @query('#input') input!: HTMLInputElement;
 
-  constructor(private todo: Injected<TodoService>) {
+  constructor(private getTodo: Injected<TodoService>) {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const shadow = this.attachShadow({ mode: 'open' });
+
+    shadow.appendChild(template.content.cloneNode(true));
+
+    shadow.addEventListener('submit', this.#onSubmit.bind(this));
   }
 
-  connectedCallback() {
-    this.shadowRoot!.appendChild(template.content.cloneNode(true));
+  #onSubmit(e: Event) {
+    const service = this.getTodo();
 
-    this.input.addEventListener('input', () => {
-      this.value = this.input.value;
-    });
-
-    this.shadowRoot!.addEventListener('submit', (e) => {
-      this.onSubmit(e);
-    });
-  }
-
-  onPropertyChanged(changes: Changes): void {
-    console.log(changes);
-
-    this.input.value = this.value;
-  }
-
-  private onSubmit(e: Event) {
     e.preventDefault();
 
-    const todo = this.input.value;
-
-    if (todo.length) {
-      this.todo().addTodo(new Todo(todo, TodoStatus.Active));
+    if (this.input.value) {
+      service.addTodo(Todo.create(this.input.value, TodoStatus.Active));
 
       this.input.value = '';
     }
   }
 }
-
-customElements.define('todo-form', TodoForm);
