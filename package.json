@@ -20,8 +20,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@joist/di": "2.0.0",
-    "@joist/observable": "2.0.0",
+    "@joist/di": "3.1.1",
+    "@joist/observable": "3.1.1",
     "@joist/query": "2.0.0",
     "@joist/styled": "2.0.0",
     "clsx": "1.2.1"
